@@ -75,9 +75,11 @@ const nextISSTimesForMyLocation = function (callback) {
         console.log("Coords Fetch FAILED!", error);
         return;
       }
-      fetchISSFlyOverTime(coords, (error, times) => {
+      fetchISSFlyOverTime(coords, (error, nextPasses) => {
         if (error) {
           console.log("ISS Times Fetch FAILED!", error);
+        }
+        callback(null, nextPasses);
       });
     });
   });
