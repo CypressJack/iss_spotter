@@ -1,6 +1,6 @@
 const request = require("request");
 
-const fetchMyIP = function(callback) {
+const fetchMyIP = function (callback) {
   const ipAPI = "https://api.ipify.org/?format=json";
   request(ipAPI, (error, response, body) => {
     if (error) {
@@ -17,7 +17,7 @@ const fetchMyIP = function(callback) {
   });
 };
 
-const fetchCoordsByIP = function(ip, callback) {
+const fetchCoordsByIP = function (ip, callback) {
   const freeGeo = `https://freegeoip.app/json/${ip}`;
   const coords = {
     latitude: "",
@@ -35,13 +35,12 @@ const fetchCoordsByIP = function(ip, callback) {
       callback(errMsg, null);
     }
     if (error) {
-
       callback(error, null);
     }
   });
 };
 
-const fetchISSFlyOverTime = function(coords, callback) {
+const fetchISSFlyOverTime = function (coords, callback) {
   const long = coords.longitude;
   const lat = coords.latitude;
   const flyOver = `http://api.open-notify.org/iss/v1/?lat=${lat}&lon=${long}&alt=1650`;
@@ -50,18 +49,43 @@ const fetchISSFlyOverTime = function(coords, callback) {
     if (error) {
       callback(error, null);
       return;
-    };
+    }
     if (response.statusCode !== 200) {
-      callback(Error(`Status Code ${response.statusCode} when fetching Coordinates for IP: ${body}`), null);
+      callback(
+        Error(
+          `Status Code ${response.statusCode} when fetching Coordinates for IP: ${body}`
+        ),
+        null
+      );
       return;
-    };
+    }
     const data = JSON.parse(body);
-    callback(error, data.response); 
+    callback(error, data.response);
+  });
+};
+
+const nextISSTimesForMyLocation = function (callback) {
+  fetchMyIP((error, ip) => {
+    if (error) {
+      console.log("IP Fetch FAILED!", error);
+      return;
+    }
+    fetchCoordsByIP(ip, (error, coords) => {
+      if (error) {
+        console.log("Coords Fetch FAILED!", error);
+        return;
+      }
+      fetchISSFlyOverTime(coords, (error, times) => {
+        if (error) {
+          console.log("ISS Times Fetch FAILED!", error);
+      });
+    });
   });
 };
 
 module.exports = {
   fetchMyIP,
   fetchCoordsByIP,
-  fetchISSFlyOverTime
+  fetchISSFlyOverTime,
+  nextISSTimesForMyLocation,
 };
