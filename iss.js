@@ -1,6 +1,6 @@
 const request = require("request");
 
-const fetchMyIP = function (callback) {
+const fetchMyIP = function(callback) {
   const ipAPI = "https://api.ipify.org/?format=json";
   request(ipAPI, (error, response, body) => {
     if (error) {
@@ -17,7 +17,7 @@ const fetchMyIP = function (callback) {
   });
 };
 
-const fetchCoordsByIP = function (ip, callback) {
+const fetchCoordsByIP = function(ip, callback) {
   const freeGeo = `https://freegeoip.app/json/${ip}`;
   const coords = {
     latitude: "",
@@ -41,7 +41,27 @@ const fetchCoordsByIP = function (ip, callback) {
   });
 };
 
+const fetchISSFlyOverTime = function(coords, callback) {
+  const long = coords.longitude;
+  const lat = coords.latitude;
+  const flyOver = `http://api.open-notify.org/iss/v1/?lat=${lat}&lon=${long}&alt=1650`;
+  const response = [];
+  request(flyOver, (error, response, body) => {
+    if (error) {
+      callback(error, null);
+      return;
+    };
+    if (response.statusCode !== 200) {
+      callback(Error(`Status Code ${response.statusCode} when fetching Coordinates for IP: ${body}`), null);
+      return;
+    };
+    const data = JSON.parse(body);
+    callback(error, data.response); 
+  });
+};
+
 module.exports = {
   fetchMyIP,
   fetchCoordsByIP,
+  fetchISSFlyOverTime
 };
