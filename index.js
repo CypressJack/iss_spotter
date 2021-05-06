@@ -9,5 +9,6 @@ fetchMyIP((error, ip) => {
 });
 
 fetchCoordsByIP('24.86.142.101', (error, data)=>{
-  
+  console.log(error);
+  console.log(data);
 })
